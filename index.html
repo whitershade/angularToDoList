@@ -4,21 +4,13 @@
 <head>
 
   <meta charset="utf-8">
-
   <title>ToDoList</title>
   <meta name="description" content="">
-  <!-- Bootstrap v3.3.4 Grid Styles -->
-
-  <!-- Header CSS (First Sections of Website: paste after release from _header.min.css here) -->
-  <style></style>
-  <!-- Load Main CSS Compilled without JS -->
-  <noscript></noscript>
 
   <link rel="stylesheet" href="css/main.css">
-
+  
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <!--  <meta property="og:image" content="path/to/image.jpg">-->
   <link rel="shortcut icon" href="img/favicon/favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-touch-icon-72x72.png">
@@ -50,17 +42,15 @@
   <main>
     <div class="container">
       <div ng-app="toDoList">
+        <!-- Display current date -->
         <current-date></current-date>
+        <!-- Control buttons: input for new task, add new task, hide/show done task, show/hide deleted task -->
         <control-buttons></control-buttons>
+        <!-- Tasks with: input to change task, toggle done/undone task, delete task, return task from deleted, finally delete task -->
         <tasks-list></tasks-list>
       </div>
     </div>
   </main>
-
-  <footer class="main-footer">
-    <div class="container">
-    </div>
-  </footer>
 
   <!--[if lt IE 9]>
 	<script src="libs/html5shiv/es5-shim.min.js"></script>
@@ -69,6 +59,6 @@
 	<script src="libs/respond/respond.min.js"></script>
 	<![endif]-->
 
-  <script async src="js/main.js"></script>
+  <script src="js/main.js"></script>
 
 </html>
