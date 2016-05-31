@@ -4,7 +4,7 @@
 /* global angular */
 
 (function () {
-  'use strict'
+  'use strict';
   let hideToggle; // скрывать / показывать сделанные задачи
   let inBasket; // показывать / скрывать удаленные задачи
   let tasks = [ // массив для хранения задач
@@ -33,7 +33,7 @@
       controller: function () { // задаем контроллер
         this.hideToggle = hideToggle; // задаем текущее значение hideToggle
         this.inBasket = inBasket; // задаем текущее значение inBasket
-        this.addNewTask = function (descr) { // добавляем новую задачу, на вход подается содержаение задачи
+        this.addNewTask = function (descr) { // добавляем новую задачу, на вход подается содержаение задачи 
           tasks.push({ // в массив задач добавляется новый объект с
             description: descr, //полученным при вызове функции описанием
             deleted: false, // задача не удалена

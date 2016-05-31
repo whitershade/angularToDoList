@@ -32,7 +32,7 @@ body {
  * Correct `block` display not defined for `main` in IE 11.
  */
 
-details,footer,header,main {
+details,header,main {
   display: block;
 }
 
@@ -366,7 +366,7 @@ body {
   margin: 0;
 }
 
-details,footer,header,main {
+details,header,main {
   display: block;
 }
 
