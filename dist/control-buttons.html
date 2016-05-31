@@ -8,7 +8,7 @@
     <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
       <ul class="icon-buttons">
         <li class="add-to-do" title="Add new thing" 
-         ng-click="btnCtrl.addNewTask(description)"
+         ng-click="btnCtrl.addNewTask(description); description = ''"
          ng-class="{ hide: btnCtrl.inBasket }">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 93.934 93.934">
             <path d="M46.967 0c-25.939 0-46.967 21.028-46.967 46.967s21.028 46.967 46.967 46.967 46.967-21.027 46.967-46.967c0-25.939-21.028-46.967-46.967-46.967zm27.845 53.924h-20.888v20.889h-13.914v-20.889h-20.889v-13.914h20.889v-20.889h13.914v20.889h20.889v13.914z" />
