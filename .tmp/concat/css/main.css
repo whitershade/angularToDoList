@@ -2590,6 +2590,11 @@ body {
   font-weight: bold;
 }
 
+.main-header {
+  position: relative;
+  z-index: 10;
+}
+
 .main-header p {
   margin: 0;
   font-weight: bold;
@@ -2617,6 +2622,7 @@ body {
 }
 
 .main-header .right-side {
+  background: #FFF;
   margin-left: -15px;
 }
 
@@ -2859,6 +2865,34 @@ body {
 .output input {
   border: none;
   width: 100%;
+}
+
+.pieTask {
+  border-top: 2px solid black;
+  position: relative;
+  display: block;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.pieTask__button {
+  z-index: 1;
+  text-transform: uppercase;
+  background: #FFF;
+  color: #000;
+  font-family: "Roboto", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+  position: absolute;
+  right: 5px;
+  top: -65px;
+  font-size: 24px;
+  border: none;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.pieCanvas {
+  max-width: 600px;
+  margin-bottom: 20px;
 }
 
 /*==========  Desktop First Method  ==========*/
