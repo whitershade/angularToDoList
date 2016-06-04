@@ -9,48 +9,47 @@
 //    { description: '1', deleted: false, done: false, hide: false, onchange: false } --> так выглядит объект типа "задача", хранящийся в массиве
   ];
 
-  const app = angular.module('toDoList', []); // инициализируем angular-приложение
-  app.value('appValues', {
-    hideToggle: false, // скрывать / показывать сделанные задачи
-    inBasket: false // показывать / скрывать удаленные задачи
-  });
-
-  app.factory('saveFactory', function (appValues) {
-    return {
-      saveInLocalStorage: function () {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        localStorage.setItem('hideToggle', appValues.hideToggle);
-        localStorage.setItem('inBasket', appValues.inBasket);
-      },
-      loadFromLocalStorage: function () {
-        if (localStorage.getItem('tasks')) { // если в local storage есть ключ tasks
-          tasks = JSON.parse(localStorage.getItem('tasks')); // получаем по ключу массив
-          tasks.forEach(function (item) { // для каждого элемента в массиве tasks 
-            item.$$hashKey = undefined; // устанавливаем hashKey = undefined (необходимо для избежание конфликтов при выводе задач)
-          });
-        }
-        appValues.hideToggle = localStorage.getItem('hideToggle'); // пытаемся считать значение для hide Toggle из Local Storage
-        if (!appValues.hideToggle) {
-          // если в local storage нет hideToggle (страница открыта впервые), то
-          appValues.hideToggle = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
-        } else {
-          // если в local storage есть такой элемент, то
-          appValues.hideToggle = appValues.hideToggle === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
-        }
-        appValues.inBasket = localStorage.getItem('inBasket');
-        if (!appValues.inBasket) {
-          // если в local storage нет hideToggle (страница открыта впервые), то
-          appValues.inBasket = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
-        } else {
-          // если в local storage есть такой элемент, то
-          appValues.inBasket = appValues.inBasket === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
+  angular.module('toDoList', []) // инициализируем angular-приложение
+    .value('appValues', {
+      hideToggle: false, // скрывать / показывать сделанные задачи
+      inBasket: false // показывать / скрывать удаленные задачи
+    })
+    .factory('saveFactory', ['appValues', function (appValues) {
+      return {
+        saveInLocalStorage: function () {
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+          localStorage.setItem('hideToggle', appValues.hideToggle);
+          localStorage.setItem('inBasket', appValues.inBasket);
+        },
+        loadFromLocalStorage: function () {
+          if (localStorage.getItem('tasks')) { // если в local storage есть ключ tasks
+            tasks = JSON.parse(localStorage.getItem('tasks')); // получаем по ключу массив
+            tasks.forEach(function (item) { // для каждого элемента в массиве tasks 
+              item.$$hashKey = undefined; // устанавливаем hashKey = undefined (необходимо для избежание конфликтов при выводе задач)
+            });
+          }
+          appValues.hideToggle = localStorage.getItem('hideToggle'); // пытаемся считать значение для hide Toggle из Local Storage
+          if (!appValues.hideToggle) {
+            // если в local storage нет hideToggle (страница открыта впервые), то
+            appValues.hideToggle = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
+          } else {
+            // если в local storage есть такой элемент, то
+            appValues.hideToggle = appValues.hideToggle === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
+          }
+          appValues.inBasket = localStorage.getItem('inBasket');
+          if (!appValues.inBasket) {
+            // если в local storage нет hideToggle (страница открыта впервые), то
+            appValues.inBasket = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
+          } else {
+            // если в local storage есть такой элемент, то
+            appValues.inBasket = appValues.inBasket === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
+          }
         }
       }
-    }
-  });
+  }])
 
-  /* Директива для вывода текущей даты */
-  app.directive('currentDate', function () {
+    /* Директива для вывода текущей даты */
+    .directive('currentDate', function () {
     return {
       restrict: 'E', // only matches element name
       templateUrl: 'current-date.html', // где хранится html
@@ -59,14 +58,14 @@
       },
       controllerAs: 'dateCtrl' // устанавливаем псевдоним для контроллера
     };
-  });
+  })
 
-  /* Директива для кнопок упрвления */
-  app.directive('controlButtons', function (saveFactory, appValues) {
+    /* Директива для кнопок упрвления */
+    .directive('controlButtons', ['saveFactory', 'appValues', function (saveFactory, appValues) {
     return {
       restrict: 'E', // only matches element name
       templateUrl: 'control-buttons.html', // где хранится html
-      controller: function (appValues) { // задаем контроллер
+      controller: function () { // задаем контроллер
         saveFactory.loadFromLocalStorage();
         this.inBasket = appValues.inBasket; // задаем текущее значение inBasket
         this.hideToggle = appValues.hideToggle; // задаем текущее значение hideToggle
@@ -100,14 +99,14 @@
       },
       controllerAs: 'btnCtrl' // псевдоним для контроллера
     };
-  });
+  }])
 
-  /* Директива для списка задач */
-  app.directive('tasksList', function (saveFactory) {
+    /* Директива для списка задач */
+    .directive('tasksList', ['saveFactory', 'appValues', function (saveFactory, appValues) {
     return {
       restrict: 'E', // only matches element name
       templateUrl: 'tasks-list.html', // где хранится html
-      controller: function (appValues) {
+      controller: function () {
         this.tasks = tasks; // получаем список задач
         this.changeTask = function (task, description) { // функция для изменения текущего содержания задачи
           task.onchange = !task.onchange; // переключаем onchange для задачи
@@ -148,5 +147,5 @@
       },
       controllerAs: 'taskCtrl' // устанавливаем псевдоним для контроллера
     };
-  });
+  }]);
 }());
