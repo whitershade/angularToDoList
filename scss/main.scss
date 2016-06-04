@@ -15,6 +15,8 @@ body {
 }
 
 .main-header {
+  position: relative;
+  z-index: 10;
   p {
     margin: 0;
     font-weight: bold;
@@ -39,6 +41,7 @@ body {
     }
   }
   .right-side {
+    background: #FFF;
     margin-left: -15px;
     p {
       font-size: em(80px);
@@ -283,11 +286,33 @@ body {
   border: none;
   width: 100%;
 }
-//
-//.ng-isolate-scope {
-//  width: 600px !important;
-//  height: 300px !important;
-//}
 
+.pieTask {
+  border-top: 2px solid black;
+  position: relative;
+  display: block;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.pieTask__button {
+  z-index: 1;
+  text-transform: uppercase;
+  background: #FFF;
+  color: #000;
+  font-family: "Roboto", $helvetica;
+  position: absolute;
+  right: 5px;
+  top: -65px;
+  font-size: 24px;
+  border: none;
+  padding: 10px;
+  font-weight: bold;
+};
+
+.pieCanvas {
+  max-width: 600px;
+  margin-bottom: 20px;
+}
 //ALWAYS END
 @import "media";

@@ -35,33 +35,34 @@ body {
   margin-bottom: 20px;
   font-weight: bold; }
 
-.main-header p {
-  margin: 0;
-  font-weight: bold; }
-
-.main-header .left-side,
-.main-header .right-side {
-  text-transform: uppercase;
-  text-align: center;
-  margin-top: 10px;
-  margin-bottom: 20px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border: 3px solid #000; }
-
-.main-header .left-side {
-  margin-right: -15px;
-  background: #000;
-  color: #FFF; }
-  .main-header .left-side p {
-    font-size: 3.4375em;
-    line-height: 60px; }
-
-.main-header .right-side {
-  margin-left: -15px; }
-  .main-header .right-side p {
-    font-size: 5em;
-    line-height: 120px; }
+.main-header {
+  position: relative;
+  z-index: 10; }
+  .main-header p {
+    margin: 0;
+    font-weight: bold; }
+  .main-header .left-side,
+  .main-header .right-side {
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 3px solid #000; }
+  .main-header .left-side {
+    margin-right: -15px;
+    background: #000;
+    color: #FFF; }
+    .main-header .left-side p {
+      font-size: 3.4375em;
+      line-height: 60px; }
+  .main-header .right-side {
+    background: #FFF;
+    margin-left: -15px; }
+    .main-header .right-side p {
+      font-size: 5em;
+      line-height: 120px; }
 
 .done {
   background: #64e464;
@@ -254,6 +255,31 @@ body {
 .output input {
   border: none;
   width: 100%; }
+
+.pieTask {
+  border-top: 2px solid black;
+  position: relative;
+  display: block;
+  text-align: center;
+  margin-bottom: 30px; }
+
+.pieTask__button {
+  z-index: 1;
+  text-transform: uppercase;
+  background: #FFF;
+  color: #000;
+  font-family: "Roboto", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+  position: absolute;
+  right: 5px;
+  top: -65px;
+  font-size: 24px;
+  border: none;
+  padding: 10px;
+  font-weight: bold; }
+
+.pieCanvas {
+  max-width: 600px;
+  margin-bottom: 20px; }
 
 /*==========  Desktop First Method  ==========*/
 /* Large Devices, Wide Screens */

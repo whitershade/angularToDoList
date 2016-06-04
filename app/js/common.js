@@ -8,16 +8,19 @@
     .value('appValues', {
       hideToggle: false, // скрывать / показывать сделанные задачи
       inBasket: false, // показывать / скрывать удаленные задачи
+      statistic: false,
       tasks: [ // массив для хранения задач
         //    { description: '1', deleted: false, done: false, hide: false, onchange: false } --> так выглядит объект типа "задача", хранящийся в массиве
       ]
     })
-    .factory('saveFactory', ['appValues', function (appValues) {
+    .factory('saveFactory', ['appValues', 'test', function (appValues, test) {
       return {
         saveInLocalStorage: function () {
           localStorage.setItem('tasks', JSON.stringify(appValues.tasks));
           localStorage.setItem('hideToggle', appValues.hideToggle);
           localStorage.setItem('inBasket', appValues.inBasket);
+          localStorage.setItem('statistic', appValues.statistic);
+          test.broadcast();
         },
         loadFromLocalStorage: function () {
           if (localStorage.getItem('tasks')) { // если в local storage есть ключ tasks
@@ -42,9 +45,26 @@
             // если в local storage есть такой элемент, то
             appValues.inBasket = appValues.inBasket === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
           }
+          test.broadcast();
+        },
+        getStatisticValue: function(){
+          appValues.statistic = localStorage.getItem('statistic');
+          if (!appValues.statistic) {
+            // если в local storage нет hideToggle (страница открыта впервые), то
+            appValues.statistic  = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
+          } else {
+            // если в local storage есть такой элемент, то
+            appValues.statistic  = appValues.statistic  === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
+          }
+          return appValues.statistic;
         }
       };
   }])
+    .service('test', function ($rootScope) {
+      this.broadcast = function () {
+        $rootScope.$broadcast("SendDown", "some data");
+      };
+    })
     /* Директива для вывода текущей даты */
     .directive('currentDate', function () {
       return {
@@ -57,7 +77,7 @@
       };
     })
     /* Директива для кнопок упрвления */
-    .directive('controlButtons', ['saveFactory', 'appValues', function (saveFactory, appValues, test) {
+    .directive('controlButtons', ['saveFactory', 'appValues', function (saveFactory, appValues) {
       return {
         restrict: 'E', // only matches element name
         templateUrl: 'control-buttons.html', // где хранится html
@@ -143,7 +163,81 @@
         controllerAs: 'taskCtrl' // устанавливаем псевдоним для контроллера
       };
   }])
-    .controller('PieCtrl', ['$scope', 'appValues', function ($scope, appValues) {
+   /* .directive('pieTasks', ['$scope', 'appValues', '$rootScope', function ($scope, appValues, $rootScope) {
+      return {
+        restruct: 'E',
+        templateUrl: 'pie-tasks.html',
+        controller: function () {
+          $rootScope.$on("SendDown", function (evt, data) {
+            $scope.updatePie();
+          });
+          $scope.show = true;
+          $scope.updatePie = function () {
+            let doneTasks = 0;
+            let deletedTasks = 0;
+            let undoneTasks = 0;
+            appValues.tasks.forEach(function (item) {
+              item.done && (doneTasks += 1);
+              item.deleted && (deletedTasks += 1);
+              !item.deleted && !item.done && (undoneTasks += 1);
+            });
+            $scope.data = {
+              datasets: [{
+                label: "My First dataset",
+                data: [
+                  deletedTasks,
+                  doneTasks,
+                  undoneTasks
+                  ],
+                backgroundColor: [
+                  "#F7464A",
+                  "#46BFBD",
+                  "#FDB45C"
+                  ]
+                  }],
+              labels: [
+                  "Deleted tasks",
+                  "Done tasks",
+                  "Undone tasks"
+                ]
+            };
+            $scope.options = {
+              legend: {
+                display: true
+              },
+              legendCallback: function (chart) {
+                var text = [];
+                for (var i = 0; i < chart.data.datasets.length; i++) {
+                  var dataset = chart.data.datasets[i];
+                  text.push('');
+                  for (var j = 0; j < dataset.data.length; j++) {
+                    text.push('');
+                    text.push(chart.data.labels[j]);
+                    text.push('');
+                  }
+                  text.push('');
+                }
+                return text.join("");
+              },
+              responsive: false
+            };
+          };
+        }
+      }
+    }]) */
+    .controller('PieCtrl', ['$scope', 'appValues', '$rootScope', 'saveFactory', function ($scope, appValues, $rootScope, saveFactory) {
+      saveFactory.loadFromLocalStorage();
+      $scope.show = saveFactory.getStatisticValue();
+      $scope.buttonShow = appValues.tasks.length > 0;
+      $scope.hideShow= $scope.show === false ? 'show statistics' : 'hide statistics';
+      $scope.showHideClick = function() {
+        appValues.statistic = $scope.show = !$scope.show;
+        $scope.hideShow= $scope.show === false ? 'show statistics' : 'hide statistics';
+        saveFactory.saveInLocalStorage();
+      }
+      $rootScope.$on("SendDown", function (evt, data) {
+        $scope.updatePie();
+      });
       $scope.updatePie = function () {
         let doneTasks = 0;
         let deletedTasks = 0;
@@ -174,9 +268,8 @@
       ]
         };
         $scope.options = {
-          defaultFontColor: '#000',
           legend: {
-            display: false
+            display: true
           },
           legendCallback: function (chart) {
             var text = [];
@@ -191,8 +284,9 @@
               text.push('');
             }
             return text.join("");
-          }
+          },
+          responsive: false
         };
-      }
+      };
     }]);
 }());

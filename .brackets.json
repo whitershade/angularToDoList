@@ -13,7 +13,7 @@
                 "sourceComments": false,
                 "outputStyle": "nested"
             },
-            "linting.collapsed": false,
+            "linting.collapsed": true,
             "custom.work.toggleToolbar": true,
             "dnbard.documents-toolbar.icons": true,
             "dnbard.documents-toolbar.smallIcons": false,
