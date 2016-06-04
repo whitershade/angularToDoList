@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/main.css">
   <!-- endbuild -->
-  
+
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link rel="shortcut icon" href="img/favicon/favicon.ico" type="image/x-icon">
@@ -52,6 +52,10 @@
         <control-buttons></control-buttons>
         <!-- Tasks with: input to change task, toggle done/undone task, delete task, return task from deleted, finally delete task -->
         <tasks-list></tasks-list>
+        <div ng-controller="PieCtrl">
+          <canvas tc-chartjs-pie chart-options="options" chart-data="data"></canvas>
+          <button ng-click="updatePie()">Click</button>
+        </div>
       </div>
     </div>
   </main>
@@ -65,6 +69,8 @@
 
   <!-- build:js js/main.js -->
   <script src="../bower_components/angular/angular.min.js"></script>
+  <script src="../bower_components/Chart.js/dist/Chart.min.js"></script>
+  <script src="../bower_components/tc-angular-chartjs/dist/tc-angular-chartjs.min.js"></script>
   <script src="js/script-complied.js"></script>
   <!-- endbuild -->
 
