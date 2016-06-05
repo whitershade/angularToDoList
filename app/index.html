@@ -46,16 +46,18 @@
   <main>
     <div class="container">
       <div ng-app="toDoList">
-      <!-- Display current date -->
-        <current-date></current-date>
-        <div ng-controller="PieCtrl" class="pieTask">
-          <canvas class="pieCanvas" tc-chartjs-pie chart-options="options" chart-data="data" ng-hide="!show"></canvas>
-          <button class="pieTask__button" ng-click="showHideClick()" ng-bind="hideShow"></button>
+        <div ng-controller="MainController">
+          <!-- Display current date -->
+          <current-date></current-date>
+          <div ng-controller="PieCtrl" class="pieTask">
+            <canvas class="pieCanvas" tc-chartjs-pie chart-options="options" chart-data="data" ng-hide="!showCanvas"></canvas>
+            <button class="pieTask__button" ng-click="showHideClick()" ng-bind="hideShowButtonContent" ng-hide="pieTaskkButtonHide"></button>
+          </div>
+          <!-- Control buttons: input for new task, add new task, hide/show done task, show/hide deleted task -->
+          <control-buttons></control-buttons>
+          <!-- Tasks with: input to change task, toggle done/undone task, delete task, return task from deleted, finally delete task -->
+          <tasks-list></tasks-list>
         </div>
-        <!-- Control buttons: input for new task, add new task, hide/show done task, show/hide deleted task -->
-        <control-buttons></control-buttons>
-        <!-- Tasks with: input to change task, toggle done/undone task, delete task, return task from deleted, finally delete task -->
-        <tasks-list></tasks-list>
       </div>
     </div>
   </main>

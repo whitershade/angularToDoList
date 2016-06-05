@@ -2,69 +2,64 @@
 /* eslint-env browser */
 /* eslint no-unused-expressions: ["error", { "allowShortCircuit": true, "allowTernary": true }] */
 /* global angular */
+
 (function () {
   'use strict';
   angular.module('toDoList', ['tc.chartjs']) // инициализируем angular-приложение
     .value('appValues', {
       hideToggle: false, // скрывать / показывать сделанные задачи
       inBasket: false, // показывать / скрывать удаленные задачи
-      statistic: false,
+      statistic: false, // показывать / скрывать статистику
       tasks: [ // массив для хранения задач
         //    { description: '1', deleted: false, done: false, hide: false, onchange: false } --> так выглядит объект типа "задача", хранящийся в массиве
       ]
-    })
-    .factory('saveFactory', ['appValues', 'test', function (appValues, test) {
-      return {
-        saveInLocalStorage: function () {
+    }) // глобальные переменные
+    /* Контроллер для инициализации глобальных переменных приложения */
+    .controller('MainController', ['saveFactory', function (saveFactory) {
+      saveFactory.loadFromLocalStorage();
+    }])
+    /* сервис для сохранения и загрузки данных в/из local storage, 
+    также при каждой манипуляции посылает broadcast о том, что было совершено изменение в tasks */
+    .service('saveFactory', ['appValues', 'TasksChanged', function (appValues, tasksChanged) {
+      // сохраняем всё в local storage
+      this.saveInLocalStorage = function () {
+          // сохраняем необходимые данные в local storage
           localStorage.setItem('tasks', JSON.stringify(appValues.tasks));
           localStorage.setItem('hideToggle', appValues.hideToggle);
           localStorage.setItem('inBasket', appValues.inBasket);
           localStorage.setItem('statistic', appValues.statistic);
-          test.broadcast();
-        },
-        loadFromLocalStorage: function () {
+          // посылает broadcast о том, что было совершено изменение в tasks
+          tasksChanged.broadcast();
+        }
+        // загружаем все данные из local storage 
+      this.loadFromLocalStorage = function () {
+          // загружаем все задачи из local storage
           if (localStorage.getItem('tasks')) { // если в local storage есть ключ tasks
             appValues.tasks = JSON.parse(localStorage.getItem('tasks')); // получаем по ключу массив
             appValues.tasks.forEach(function (item) { // для каждого элемента в массиве tasks
               item.$$hashKey = undefined; // устанавливаем hashKey = undefined (необходимо для избежание конфликтов при выводе задач)
             });
           }
-          appValues.hideToggle = localStorage.getItem('hideToggle'); // пытаемся считать значение для hide Toggle из Local Storage
-          if (!appValues.hideToggle) {
-            // если в local storage нет hideToggle (страница открыта впервые), то
-            appValues.hideToggle = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
-          } else {
-            // если в local storage есть такой элемент, то
-            appValues.hideToggle = appValues.hideToggle === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
-          }
-          appValues.inBasket = localStorage.getItem('inBasket');
-          if (!appValues.inBasket) {
-            // если в local storage нет hideToggle (страница открыта впервые), то
-            appValues.inBasket = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
-          } else {
-            // если в local storage есть такой элемент, то
-            appValues.inBasket = appValues.inBasket === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
-          }
-          test.broadcast();
-        },
-        getStatisticValue: function(){
-          appValues.statistic = localStorage.getItem('statistic');
-          if (!appValues.statistic) {
-            // если в local storage нет hideToggle (страница открыта впервые), то
-            appValues.statistic  = false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
-          } else {
-            // если в local storage есть такой элемент, то
-            appValues.statistic  = appValues.statistic  === 'true' ? true : false; // если записана строка true, то преобразуем её в bool true, иначе в bool false
-          }
-          return appValues.statistic;
+          // устанавливаем глобальные значения
+          appValues.hideToggle = this.getBool('hideToggle');
+          appValues.inBasket = this.getBool('inBasket');
+          appValues.statistic = this.getBool('statistic');
+          // посылает broadcast о том, что было совершено изменение в tasks
+          tasksChanged.broadcast();
         }
-      };
+        // вспомогательная функция, получает на вход строку с именем ключа в local storage, возвращает true или false
+      this.getBool = function (property) {
+        let value = localStorage.getItem(property); // пытаемся считать значение Local Storage
+        if (!value) return false; // по умолчанию зададим ему false (значит, на него ещё не нажимали)
+        return value === 'true' ? true : false; // если записана строка 'true', то преобразуем её в bool true, иначе в bool false
+      }
   }])
-    .service('test', function ($rootScope) {
+    /* сервис, функция broadcast которого апускает извещение о том, что в tasks было произведено изменение */
+    .service('TasksChanged', ['$rootScope', function ($rootScope) {
       this.broadcast = function () {
-        $rootScope.$broadcast("SendDown", "some data");
+        $rootScope.$broadcast('TasksChanged');
       };
-    })
+    }])
     /* Директива для вывода текущей даты */
     .directive('currentDate', function () {
       return {
@@ -163,93 +158,39 @@
         controllerAs: 'taskCtrl' // устанавливаем псевдоним для контроллера
       };
   }])
-   /* .directive('pieTasks', ['$scope', 'appValues', '$rootScope', function ($scope, appValues, $rootScope) {
-      return {
-        restruct: 'E',
-        templateUrl: 'pie-tasks.html',
-        controller: function () {
-          $rootScope.$on("SendDown", function (evt, data) {
-            $scope.updatePie();
-          });
-          $scope.show = true;
-          $scope.updatePie = function () {
-            let doneTasks = 0;
-            let deletedTasks = 0;
-            let undoneTasks = 0;
-            appValues.tasks.forEach(function (item) {
-              item.done && (doneTasks += 1);
-              item.deleted && (deletedTasks += 1);
-              !item.deleted && !item.done && (undoneTasks += 1);
-            });
-            $scope.data = {
-              datasets: [{
-                label: "My First dataset",
-                data: [
-                  deletedTasks,
-                  doneTasks,
-                  undoneTasks
-                  ],
-                backgroundColor: [
-                  "#F7464A",
-                  "#46BFBD",
-                  "#FDB45C"
-                  ]
-                  }],
-              labels: [
-                  "Deleted tasks",
-                  "Done tasks",
-                  "Undone tasks"
-                ]
-            };
-            $scope.options = {
-              legend: {
-                display: true
-              },
-              legendCallback: function (chart) {
-                var text = [];
-                for (var i = 0; i < chart.data.datasets.length; i++) {
-                  var dataset = chart.data.datasets[i];
-                  text.push('');
-                  for (var j = 0; j < dataset.data.length; j++) {
-                    text.push('');
-                    text.push(chart.data.labels[j]);
-                    text.push('');
-                  }
-                  text.push('');
-                }
-                return text.join("");
-              },
-              responsive: false
-            };
-          };
+    /* Контроллер для pie статистики */
+    .controller('PieCtrl', ['$scope', '$rootScope', 'appValues', 'saveFactory', function ($scope, $rootScope, appValues, saveFactory) {
+      // инициализируем стартовые значения
+      $scope.showCanvas = appValues.statistic; // cкрываем / показываем canvas c pie statistic
+      $scope.hideShowButtonContent = $scope.showCanvas === false ? 'show statistics' : 'hide statistics'; // получаем содержание для button
+      $scope.pieTaskkButtonHide = (appValues.tasks.length > 0) ? false : true; // если нет задач, то не показываем button
+      // при клике на button
+      $scope.showHideClick = function () {
+        appValues.statistic = $scope.showCanvas = !$scope.showCanvas; // тогглим значение для appValues.statistic
+        $scope.hideShowButtonContent = $scope.showCanvas === false ? 'show statistics' : 'hide statistics'; // меняем содержание для button
+        saveFactory.saveInLocalStorage(); // сохраняем изменения в local storage
+      };
+      // если пришло оповещение о том, что в tasks произошли изменения
+      $rootScope.$on('TasksChanged', function () { // функция обновления статистики
+        // переменные для хранения задач:
+        let doneTasks = 0; // выполненных
+        let deletedTasks = 0; // удаленных
+        let undoneTasks = 0; // ещё не сделанных
+        if (appValues.tasks.length === 0) { // если нет задач
+          appValues.statistic = false; // меняем значение в appValues
+          $scope.hideShowButtonContent = 'show statistics'; // меняем значение контента для button
         }
-      }
-    }]) */
-    .controller('PieCtrl', ['$scope', 'appValues', '$rootScope', 'saveFactory', function ($scope, appValues, $rootScope, saveFactory) {
-      saveFactory.loadFromLocalStorage();
-      $scope.show = saveFactory.getStatisticValue();
-      $scope.buttonShow = appValues.tasks.length > 0;
-      $scope.hideShow= $scope.show === false ? 'show statistics' : 'hide statistics';
-      $scope.showHideClick = function() {
-        appValues.statistic = $scope.show = !$scope.show;
-        $scope.hideShow= $scope.show === false ? 'show statistics' : 'hide statistics';
-        saveFactory.saveInLocalStorage();
-      }
-      $rootScope.$on("SendDown", function (evt, data) {
-        $scope.updatePie();
-      });
-      $scope.updatePie = function () {
-        let doneTasks = 0;
-        let deletedTasks = 0;
-        let undoneTasks = 0;
-        appValues.tasks.forEach(function (item) {
-          item.done && (doneTasks += 1);
-          item.deleted && (deletedTasks += 1);
-          !item.deleted && !item.done && (undoneTasks += 1);
+        $scope.pieTaskkButtonHide = (appValues.tasks.length > 0) ? false : true; // если нет задач, то не показываем button
+        $scope.showCanvas = !$scope.pieTaskkButtonHide && appValues.statistic;
+        appValues.tasks.forEach(function (item) { // считаем количество различных задач в списке задач
+          item.done && (doneTasks += 1); // если задача сделана, то увеличиваем количество сделанных задач
+          item.deleted && (deletedTasks += 1); // если задача удалена, то увеличиваем количество удаленных задач
+          !item.deleted && !item.done && (undoneTasks += 1); // если задача не сделана, и не удалена, то увеичиваем количество ещё не сделанных задач
         });
+        // задаем значения для pie statistic
         $scope.data = {
           datasets: [{
-            label: "My First dataset",
+            label: "My dataset",
             data: [
           deletedTasks,
           doneTasks,
@@ -267,6 +208,7 @@
         "Undone tasks"
       ]
         };
+        // задаем настройки для pie statistic
         $scope.options = {
           legend: {
             display: true
@@ -285,8 +227,8 @@
             }
             return text.join("");
           },
-          responsive: false
+          responsive: true
         };
-      };
-    }]);
+      });
+    }])
 }());
