@@ -104,6 +104,7 @@
               item.hide = true; // скрываем каждую задачу
               appValues.inBasket && item.deleted && (item.hide = false); // если в данный момент пользователь находится в корзине, и задача удалена, то показываем задачу
               !appValues.inBasket && !item.deleted && (item.hide = false); // если пользователь не находится в корзине, и задача не удалена, то показываем её
+              !appValues.inBasket && appValues.hideToggle && item.done && (item.hide = true); // если пользователь не в корзине, неоходимо скрывать сделанные задачи, а задача сделана, то скрываем её
             });
             saveFactory.saveInLocalStorage(); // сохраняем изменения в local storage
           };
